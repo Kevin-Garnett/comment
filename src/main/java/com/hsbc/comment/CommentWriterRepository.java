@@ -1,4 +1,4 @@
-package com.hsbc.comments;
+package com.hsbc.comment;
 
 import org.springframework.data.repository.Repository;
 import reactor.core.publisher.Flux;

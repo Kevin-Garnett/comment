@@ -1,4 +1,4 @@
-package com.hsbc.comments;
+package com.hsbc.comment;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

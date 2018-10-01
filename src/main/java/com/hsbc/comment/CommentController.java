@@ -1,18 +1,9 @@
-package com.hsbc.comments;
+package com.hsbc.comment;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.annotation.Output;
-import org.springframework.cloud.stream.messaging.Source;
-import org.springframework.cloud.stream.reactive.FluxSender;
-import org.springframework.cloud.stream.reactive.StreamEmitter;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
 
 @Controller
@@ -36,12 +27,12 @@ public class CommentController {
                 comment -> Mono.fromRunnable(
                         () -> rabbitTemplate.convertAndSend(
                                 "learning-spring-boot",
-                                "comments.new",
+                                "comment.new",
                                 comment
                         )
                 ).then(Mono.just(comment))
         ).log("commentService-publish").flatMap(comment -> {
-                    meterRegistry.counter("comments.produced", "imageId", comment.getImageId())
+                    meterRegistry.counter("comment.produced", "imageId", comment.getImageId())
                             .increment();
                     return Mono.just("redirect:/");
                 }
@@ -63,7 +54,7 @@ public class CommentController {
         ).publish().autoConnect();
     }
 
-    @PostMapping("/comments")
+    @PostMapping("/comment")
     public Mono<String> addComment(Mono<Comment> newComment){
         if (commentSink != null){
             return newComment.map(comment ->
