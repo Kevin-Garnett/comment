@@ -3,8 +3,14 @@ package com.hsbc.comment;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Controller
 //@EnableBinding(Source.class)
@@ -16,9 +22,12 @@ public class CommentController {
 
     private final MeterRegistry meterRegistry;
 
-    public CommentController(RabbitTemplate rabbitTemplate, MeterRegistry meterRegistry){
+    private final CommentRepository commentRepository;
+
+    public CommentController(RabbitTemplate rabbitTemplate, MeterRegistry meterRegistry, CommentRepository commentRepository){
         this.rabbitTemplate = rabbitTemplate;
         this.meterRegistry = meterRegistry;
+        this.commentRepository = commentRepository;
     }
 
     @PostMapping("/comments")
@@ -37,6 +46,12 @@ public class CommentController {
                     return Mono.just("redirect:/");
                 }
         );
+    }
+
+    @GetMapping("/comments/{imageId}")
+    @ResponseBody
+    public List<Comment> comments(@PathVariable String imageId){
+        return commentRepository.findByImageId(imageId).collectList().block();
     }
 
 

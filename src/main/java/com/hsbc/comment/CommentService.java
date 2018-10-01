@@ -7,25 +7,31 @@ import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.annotation.Input;
+import org.springframework.cloud.stream.annotation.Output;
+import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
-//@EnableBinding(CustomProcessor.class)
+@EnableBinding(CustomProcessor.class)
 public class CommentService {
 
 
-    private CommentWriterRepository repository;
+    private CommentRepository repository;
 
     private final MeterRegistry meterRegistry;
 
-    public CommentService(CommentWriterRepository repository, MeterRegistry meterRegistry){
+    public CommentService(CommentRepository repository, MeterRegistry meterRegistry){
         this.repository = repository;
         this.meterRegistry = meterRegistry;
     }
     // Non-Cloud version:
-
+/*
     @RabbitListener(bindings = @QueueBinding(
             value=@Queue,
             exchange=@Exchange(value="learning-spring-boot"), //Exchange
@@ -53,7 +59,7 @@ public class CommentService {
             mongoOperations.dropCollection(Comment.class);
         };
     }
-
+*/
     /**
      * TBC - ?
      * Noticed that here need to define a Queue object, otherwise if we use the anonymous Queue,
@@ -67,7 +73,7 @@ public class CommentService {
     //}
 
     // Cloud version:
-    /*
+
     @StreamListener
     @Output(CustomProcessor.OUTPUT)
     public Flux<Void> save(@Input(CustomProcessor.INPUT) Flux<Comment> newComments){
@@ -78,5 +84,5 @@ public class CommentService {
                     return Mono.empty();
                 });
     }
-    */
+
 }
