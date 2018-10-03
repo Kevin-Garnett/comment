@@ -1,6 +1,8 @@
 package com.hsbc.comment;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
@@ -11,6 +13,7 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Service;
@@ -18,9 +21,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
-@EnableBinding(CustomProcessor.class)
+@EnableBinding(Processor.class)
 public class CommentService {
 
+    private static Logger log = LoggerFactory.getLogger(CommentService.class);
 
     private CommentRepository repository;
 
@@ -75,13 +79,15 @@ public class CommentService {
     // Cloud version:
 
     @StreamListener
-    @Output(CustomProcessor.OUTPUT)
-    public Flux<Void> save(@Input(CustomProcessor.INPUT) Flux<Comment> newComments){
-        return repository.saveAll(newComments).flatMap(
+    @Output(Processor.OUTPUT)
+    public Flux<Comment> save(@Input(Processor.INPUT) Flux<Comment> newComments){
+        return repository.saveAll(newComments).map(
                 comment -> {
+                    log.info("Saving new comment " + comment);
+
                     meterRegistry.counter("comment.consumed","imageId", comment.getImageId())
                             .increment();
-                    return Mono.empty();
+                    return comment;
                 });
     }
 

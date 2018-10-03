@@ -1,14 +1,10 @@
 package com.hsbc.comment;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -18,18 +14,20 @@ public class CommentController {
 
     //Non-Cloud version
 
-    private final RabbitTemplate rabbitTemplate;
+    //private final RabbitTemplate rabbitTemplate;
 
     private final MeterRegistry meterRegistry;
 
     private final CommentRepository commentRepository;
 
-    public CommentController(RabbitTemplate rabbitTemplate, MeterRegistry meterRegistry, CommentRepository commentRepository){
-        this.rabbitTemplate = rabbitTemplate;
+    public CommentController(MeterRegistry meterRegistry, CommentRepository commentRepository){
+        //this.rabbitTemplate = rabbitTemplate;
         this.meterRegistry = meterRegistry;
         this.commentRepository = commentRepository;
     }
 
+    // Use the Image service to send, no need to use this one to send when separating service
+    /*
     @PostMapping("/comments")
     public Mono<String> addComment(Mono<Comment> newComment){
         return newComment.flatMap(
@@ -47,6 +45,7 @@ public class CommentController {
                 }
         );
     }
+    */
 
     @GetMapping("/comments/{imageId}")
     @ResponseBody
