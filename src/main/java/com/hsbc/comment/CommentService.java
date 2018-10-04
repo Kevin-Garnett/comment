@@ -56,14 +56,14 @@ public class CommentService {
     Jackson2JsonMessageConverter jackson2JsonMessageConverter(){
         return new Jackson2JsonMessageConverter();
     }
-
+*/
     @Bean
     CommandLineRunner setupComment(MongoOperations mongoOperations){
         return args -> {
             mongoOperations.dropCollection(Comment.class);
         };
     }
-*/
+
     /**
      * TBC - ?
      * Noticed that here need to define a Queue object, otherwise if we use the anonymous Queue,
